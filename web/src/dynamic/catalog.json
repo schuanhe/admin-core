@@ -1,0 +1,106 @@
+{
+  "revision": 1,
+  "limits": {
+    "registration_bytes": 262144, "json_depth": 12, "json_fields": 3000,
+    "menus": 20, "pages": 20, "blocks": 80, "block_children": 20, "block_depth": 4,
+    "tabs": 8, "columns": 4, "gap": 48, "stylesheet_bytes": 16384,
+    "style_properties": 30, "css_rules": 100, "css_declarations": 300, "css_selectors": 10,
+    "css_ast_nodes": 4000, "css_value_nodes": 100, "css_value_length": 256,
+    "css_number": 2000, "css_media_depth": 2
+  },
+  "page_common": {
+    "id": "必填；ASCII字母开头，后跟字母数字_-，最多64字符；同定义内唯一，禁止constructor/prototype/__proto__。",
+    "title": "必填；非空纯文本，最多120字。",
+    "type": "必填；下方page_types白名单之一。",
+    "description": "可选；纯文本说明，最多2000字。",
+    "source": "可选的{path}；table/detail必填；GET；路径是服务内部根相对路径。",
+    "breadcrumbs": "可选；最多4个{label,page_id?}，插入站点/服务/当前页之间；page_id仅引用本服务已有其他页面，不可重复或指向自身。",
+    "class_name": "可选；最多4个空格分隔CSS类，总128字节内；每类ASCII字母开头，后跟字母数字_-，最多32字符。",
+    "style": "可选；最多30个CSS属性，键为小写连字符形式，值为最多256字符的非空CSS字符串；支持--service-*变量。应用到内部.service-page。",
+    "stylesheet": "可选；最多16KiB UTF-8 CSS文本；经AST验证并自动加页面作用域。"
+  },
+  "page_types": {
+    "table": {"summary":"服务端分页表格；source必填。", "fields":{
+      "columns":"必填；1–30个{key,label}，key唯一且为平面字段名。",
+      "actions":"可选；最多8个{id,label,path,method,confirm?}，id唯一，method仅POST/DELETE；发送{\"id\":行.id}，成功刷新表格。",
+      "page_size":"可选；1–100，默认20。"
+    }},
+    "form": {"summary":"数据表单；source可选，未提供时使用空初始值。", "fields":{
+      "fields":"必填；1–40个表单字段，见form_fields和form_types；key唯一。",
+      "submit":"必填；{path,method}，method仅POST/PUT；发送字段值JSON，不接受额外字段。",
+      "submit_label":"可选；非空纯文本，最多120字，默认保存设置。"
+    }},
+    "detail": {"summary":"只读详情；source必填。", "fields":{
+      "fields":"必填；1–40个{key,label}，只读平面数据，缺失/null/空字符串显示占位。"
+    }},
+    "compose": {"summary":"组合中心内置组件；可选source返回共享平面对象；出现value_key或descriptions时source必填。", "fields":{
+      "blocks":"必填；组件数组；字段白名单见components；本页组件id跨层级唯一。"
+    }}
+  },
+  "block_common": {
+    "id":"必填；与页面id规则相同，同一组合页面的所有层级内唯一。",
+    "type":"必填；components白名单之一。",
+    "class_name":"可选；与页面class_name相同，应用到组件外层。",
+    "style":"可选；与页面style规则相同，应用到组件外层。"
+  },
+  "components": {
+    "stack":{"summary":"纵向堆叠。", "fields":{"children":"必填；非空组件数组。", "gap":"可选；0–48像素，默认16。"}},
+    "grid":{"summary":"响应式栅格，窄屏自动单列。", "fields":{"children":"必填；非空组件数组。", "columns":"可选；1–4，默认2。", "gap":"可选；0–48像素，默认16。"}},
+    "card":{"summary":"中心主题内容卡片。", "fields":{"title":"可选；非空文本，最多120字。", "children":"必填；非空组件数组。"}},
+    "tabs":{"summary":"页签；只挂载当前页，切换离开会卸载并取消请求，未提交表单不跨页签保存。", "fields":{"children":"必填；1–8个tab组件，不允许其他类型。"}},
+    "tab":{"summary":"单个页签，只能放在tabs内。", "fields":{"title":"必填；非空文本，最多120字。", "children":"必填；非空组件数组。"}},
+    "text":{"summary":"纯文本，保留换行，不解析HTML或Markdown。", "fields":{"text":"text与value_key至少一项；静态文本最多2000字。", "value_key":"可选；读取共享source中的自身字段，不解释点号路径或表达式；优先于text。"}},
+    "alert":{"summary":"提示。", "fields":{"title":"可选；非空文本，最多120字。", "text":"必填；非空纯文本，最多2000字。", "tone":"可选；info/success/warning/error，默认info。"}},
+    "statistic":{"summary":"文本或数字统计。", "fields":{"title":"必填；非空文本，最多120字。", "value":"value与value_key至少一项；静态值为最多120字文本或有限数字。", "value_key":"可选；共享source自身字段，优先于value。", "unit":"可选；最多20字单位。"}},
+    "progress":{"summary":"0–100进度；绑定值不合法时显示暂无有效进度，不伪装成0。", "fields":{"title":"可选；非空文本，最多120字。", "value":"value与value_key至少一项；静态值为0–100有限数字。", "value_key":"可选；共享source自身字段，优先于value。"}},
+    "descriptions":{"summary":"共享source的只读描述列表。", "fields":{"fields":"必填；1–30个{key,label}，key唯一；source必填。", "columns":"可选；1–4，默认2。"}},
+    "divider":{"summary":"分隔线。", "fields":{"title":"可选；非空文本，最多120字。"}},
+    "list":{"summary":"纯文本列表，空数组显示空状态。", "fields":{"items":"必填；0–30个非空文本项，每项最多2000字。"}},
+    "page-link":{"summary":"本服务内部页面链接。", "fields":{"title":"必填；非空文本，最多120字。", "page_id":"必填；本服务已定义的页面id，不接受外部URL。"}},
+    "page":{"summary":"嵌入本服务table/form/detail；使用被引用页面自身的接口授权；禁止嵌入compose以避免递归。", "fields":{"page_id":"必填；本服务已存在的table/form/detail页面id。"}}
+  },
+  "form_fields": {
+    "key":"必填；与页面id相同的标识规则，表单内唯一。", "label":"必填；非空纯文本，最多120字。",
+    "type":"必填；form_types白名单之一。", "required":"可选布尔值；空白/空字符串/null被视为缺失，0和false为有效值。",
+    "options":"select/radio必填；{label,value}数组，value仅文本或有限数字，值唯一；其他类型不可用。",
+    "placeholder":"可选；最多120字的输入提示。", "help":"可选；最多300字，错误反馈优先。",
+    "max_length":"仅text/textarea；1–2000字符，默认2000。", "rows":"仅textarea；2–8，默认3。",
+    "min":"仅number；可选有限数字，下限。", "max":"仅number；可选有限数字，上限，不得小于min。"
+  },
+  "form_types": {
+    "text":"单行文本。", "textarea":"多行文本。", "number":"有限数字，可设置min/max。",
+    "select":"下拉，1–100项。", "radio":"单选，1–10项。", "boolean":"布尔开关。",
+    "date":"YYYY-MM-DD真实日历日期，无时间或时区；未选择时提交null。"
+  },
+  "css": {
+    "properties":["color","background","background-color","background-image","border","border-color","border-style","border-width","border-top","border-right","border-bottom","border-left","border-radius","box-shadow","padding","padding-top","padding-right","padding-bottom","padding-left","margin","margin-top","margin-right","margin-bottom","margin-left","gap","row-gap","column-gap","display","width","min-width","max-width","height","min-height","max-height","box-sizing","flex","flex-direction","flex-wrap","flex-grow","flex-shrink","flex-basis","align-items","align-content","align-self","justify-content","justify-items","justify-self","grid-template-columns","grid-template-rows","grid-column","grid-row","grid-auto-flow","font-size","font-weight","font-family","font-style","font-variant-numeric","line-height","letter-spacing","text-align","text-decoration","text-transform","white-space","word-break","overflow-wrap","overflow","overflow-x","overflow-y","opacity","position","list-style-type","vertical-align"],
+    "functions":["rgb","rgba","hsl","hsla","oklch","oklab","linear-gradient","radial-gradient","calc","min","max","clamp","repeat","minmax","fit-content","var"],
+    "variables":["accent","accent-hover","accent-pressed","accent-text","accent-soft","accent-border","brand-primary","brand-secondary","brand-soft","surface-canvas","surface-raised","surface-sunken","surface-hover","text-primary","text-secondary","text-tertiary","border-default","border-subtle","success","success-bg","warning","warning-bg","error","error-bg","info","info-bg","space-xs","space-sm","space-md","space-lg","space-xl","space-2xl","radius-input","radius-nav","radius-card","radius-modal","font-body","font-mono","shadow-card","shadow-subtle"],
+    "states":["hover","focus","focus-visible","focus-within","active","disabled","checked","first-child","last-child","only-child","empty"],
+    "pseudo_elements":["placeholder","selection"],
+    "units":["px","rem","em","ch","fr","vh","vw","vmin","vmax"],
+    "positions":["static","relative"],
+    "selectors":"类名、普通标签、*、后代/>/+/~；不可从组合符开始。禁止html/body、属性、ID、命名空间、函数伪类、:root/:scope/:global/:host、嵌套&及shadow穿透。",
+    "media":"仅@media，最多嵌套两层；单条件：(min-width: 10至9999px整数)、(max-width: 同前)、(prefers-color-scheme: dark或light)、(prefers-reduced-motion: reduce)；可加screen and或all and。系统明暗查询不等于控制台手动主题，优先使用主题变量。",
+    "isolation":"每个逗号选择器及@media内的选择器都自动加唯一data-service-scope后代前缀；外层边界不接收服务style/class，contain:layout paint style + isolation:isolate。切页/更新/卸载清理样式；父compose样式可覆盖嵌入区，嵌入CSS不影响父页。传送到body的Naive浮层仍使用中心主题。",
+    "values":"允许!important但仅在本页；position仅static/relative。var仅引用公开主题变量（variables内名称加--）或--service-[a-z][a-z0-9-]{0,31}，不接受fallback，局部变量的值同样检查。数值绝对值最多2000，另支持百分比。值通过浏览器CSS.supports检查。",
+    "forbidden":"不支持反斜线转义、HTML、控制字符、url、外部资源、@import/@font-face/@keyframes/@property、image-set/attr/expression、JS、content、fixed/absolute/sticky、z-index、transform、动画及未列出的属性/函数。无效CSS只阻断当前页，不安装部分样式。"
+  },
+  "icons": {
+    "workstation":"M4 4h16v12H4zM8 20h8M12 16v4",
+    "overview":"M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
+    "services":"M4 3h16v7H4zM4 14h16v7H4zM7 6.5h.01M7 17.5h.01M11 6.5h6M11 17.5h6",
+    "settings":"M4 6h16M4 12h16M4 18h16M8 3v6M16 9v6M10 15v6",
+    "audit":"M6 3h9l3 3v15H6zM9 9h6M9 13h6M9 17h4",
+    "arrow":"M5 12h14M14 7l5 5-5 5", "back":"M19 12H5M10 7l-5 5 5 5",
+    "refresh":"M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 11-2l3 3M4 16l3 3a7 7 0 0 0 11-2",
+    "shield":"M12 3l8 3v6c0 5-8 9-8 9S4 17 4 12V6zM8 12l3 3 5-6",
+    "logout":"M9 5H4v14h5M13 8l4 4-4 4M8 12h13", "dot":"M12 3v4M12 17v4M3 12h4M17 12h4M6 6l3 3M15 15l3 3M6 18l3-3M15 9l3-3",
+    "search":"M16 16l5 5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0", "page":"M5 3h10l4 4v14H5zM14 3v5h5M8 12h8M8 16h6",
+    "menu":"M4 6h16M4 12h16M4 18h16", "check":"M5 12l4 4L19 6", "clock":"M12 7v5l3 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0",
+    "sun":"M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5",
+    "moon":"M20.5 13A8.5 8.5 0 0 1 11 3.5 8.5 8.5 0 1 0 20.5 13Z", "palette":"M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 1.5-3.3 1.5 1.5 0 0 1 1.1-2.5H18a3 3 0 0 0 3-3A9 9 0 0 0 12 3ZM7 10h.01M10 6.5h.01M15 6.5h.01M18 10h.01",
+    "table":"M3 4h18v16H3zM3 9h18M9 9v11M15 9v11", "form":"M5 3h14v18H5zM8 7h8M8 11h8M8 15h4M8 18h6", "detail":"M4 4h16v16H4zM8 8h2M13 8h3M8 12h2M13 12h3M8 16h2M13 16h3",
+    "grip":"M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01", "pin":"M9 3h6l-1 6 4 4v2H6v-2l4-4-1-6ZM12 15v7"
+  }
+}

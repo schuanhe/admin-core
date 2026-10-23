@@ -1,0 +1,12 @@
+{
+  "workstation-demo": {
+    "origin": "http://127.0.0.1:8091",
+    "bearer_token": "replace-with-an-independent-random-business-token",
+    "endpoints": [
+      { "path": "/api/tasks", "methods": ["GET"] },
+      { "path": "/api/tasks/archive", "methods": ["POST"] },
+      { "path": "/api/preferences", "methods": ["GET", "PUT"] },
+      { "path": "/api/overview", "methods": ["GET"] }
+    ]
+  }
+}

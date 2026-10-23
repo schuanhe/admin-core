@@ -1,0 +1,29 @@
+{
+  "name": "workstation-controller-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "css-tree": "3.2.1",
+    "naive-ui": "2.45.3",
+    "vue": "3.5.44",
+    "vue-router": "5.4.0"
+  },
+  "devDependencies": {
+    "@types/css-tree": "3.2.0",
+    "@types/node": "^24.0.0",
+    "@vitejs/plugin-vue": "6.0.10",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "30.1.3",
+    "typescript": "5.9.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5",
+    "vue-tsc": "3.3.13"
+  }
+}

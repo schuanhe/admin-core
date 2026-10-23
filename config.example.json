@@ -1,0 +1,14 @@
+{
+  "listen": "127.0.0.1:8080",
+  "database_path": "data/controller.db",
+  "static_dir": "web/dist",
+  "public_origin": "http://localhost:8080",
+  "bootstrap_token": "replace-with-a-unique-random-bootstrap-secret",
+  "registration_key": "replace-with-a-different-random-registration-secret",
+  "allowed_service_origins": ["http://127.0.0.1:8091"],
+  "session_hours": 12,
+  "secure_cookie": false,
+  "check_interval_seconds": 30,
+  "service_access_file": "secrets/service-access.json"
+}
+

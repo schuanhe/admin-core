@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "icon": "workstation",
+  "menus": [
+    {"id":"workbench-menu","label":"工作台","page_id":"workbench","icon":"overview"},
+    {"id":"tasks-menu","label":"任务列表","page_id":"tasks","icon":"table"},
+    {"id":"preferences-menu","label":"偏好设置","page_id":"preferences","icon":"settings"},
+    {"id":"info-menu","label":"服务概览","page_id":"info","icon":"detail"}
+  ],
+  "pages": [
+    {
+      "id":"workbench","title":"工作台","type":"compose",
+      "source":{"path":"/api/overview"},
+      "class_name":"example-workbench",
+      "style":{"padding":"4px"},
+      "stylesheet":".example-workbench { --service-space: 20px; } .summary { padding: var(--service-space); background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 12px; } .primary strong { color: var(--accent-text); } @media (max-width: 680px) { .summary { padding: 12px; } }",
+      "blocks":[
+        {"id":"summary","type":"grid","columns":2,"gap":24,"class_name":"summary","children":[
+          {"id":"total","type":"statistic","title":"任务总数","value_key":"task_count","unit":"项","class_name":"primary"},
+          {"id":"archived","type":"statistic","title":"已归档","value_key":"archived_count","unit":"项"}
+        ]},
+        {"id":"progress","type":"progress","title":"归档进度","value_key":"completion"},
+        {"id":"tabs","type":"tabs","children":[
+          {"id":"tasks-tab","type":"tab","title":"任务","children":[{"id":"tasks-embed","type":"page","page_id":"tasks"}]},
+          {"id":"preferences-tab","type":"tab","title":"偏好","children":[{"id":"preferences-embed","type":"page","page_id":"preferences"}]},
+          {"id":"info-tab","type":"tab","title":"说明","children":[
+            {"id":"info","type":"descriptions","columns":2,"fields":[{"key":"name","label":"服务名称"},{"key":"version","label":"版本"}]},
+            {"id":"notice","type":"alert","tone":"info","text":"演示服务重启后会重置内存数据。"},
+            {"id":"preferences-link","type":"page-link","title":"打开偏好设置","page_id":"preferences"}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "id":"tasks","title":"任务列表","type":"table",
+      "breadcrumbs":[{"label":"工作台","page_id":"workbench"}],
+      "source":{"path":"/api/tasks"},"page_size":10,
+      "columns":[{"key":"id","label":"编号"},{"key":"title","label":"任务"},{"key":"status","label":"状态"},{"key":"priority","label":"优先级"}],
+      "actions":[{"id":"archive","label":"归档","path":"/api/tasks/archive","method":"POST","confirm":"确定归档该任务？"}]
+    },
+    {
+      "id":"preferences","title":"偏好设置","type":"form",
+      "source":{"path":"/api/preferences"},
+      "fields":[
+        {"key":"owner","label":"名称","type":"text","required":true,"max_length":40},
+        {"key":"refresh_seconds","label":"刷新间隔（秒）","type":"number","required":true,"min":5,"max":3600},
+        {"key":"theme","label":"服务外观","type":"radio","required":true,"options":[{"label":"跟随系统","value":"system"},{"label":"浅色","value":"light"},{"label":"深色","value":"dark"}]},
+        {"key":"notifications","label":"提醒","type":"boolean"},
+        {"key":"review_date","label":"复查日期","type":"date"},
+        {"key":"note","label":"备注","type":"textarea","rows":3,"max_length":500}
+      ],
+      "submit":{"path":"/api/preferences","method":"PUT"},"submit_label":"保存偏好"
+    },
+    {
+      "id":"info","title":"服务概览","type":"detail",
+      "source":{"path":"/api/overview"},
+      "fields":[{"key":"name","label":"名称"},{"key":"version","label":"版本"},{"key":"task_count","label":"任务数"}]
+    }
+  ]
+}

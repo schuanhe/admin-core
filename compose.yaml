@@ -1,0 +1,38 @@
+name: workstation-controller
+
+services:
+  controller:
+    build: .
+    image: workstation-controller:local
+    restart: unless-stopped
+    ports:
+      - "${CONTROLLER_BIND:-127.0.0.1}:${CONTROLLER_PORT:-8080}:8080"
+    environment:
+      CONTROLLER_BOOTSTRAP_TOKEN: "${CONTROLLER_BOOTSTRAP_TOKEN:?请在.env设置初始化密钥}"
+      CONTROLLER_REGISTRATION_KEY: "${CONTROLLER_REGISTRATION_KEY:?请在.env设置注册密钥}"
+      CONTROLLER_PUBLIC_ORIGIN: "${CONTROLLER_PUBLIC_ORIGIN:-http://localhost:8080}"
+      CONTROLLER_SECURE_COOKIE: "${CONTROLLER_SECURE_COOKIE:-false}"
+      CONTROLLER_ALLOWED_SERVICE_ORIGINS: "${CONTROLLER_ALLOWED_SERVICE_ORIGINS:-http://127.0.0.1:8091}"
+      CONTROLLER_SESSION_HOURS: "${CONTROLLER_SESSION_HOURS:-12}"
+      CONTROLLER_CHECK_INTERVAL_SECONDS: "${CONTROLLER_CHECK_INTERVAL_SECONDS:-30}"
+      CONTROLLER_SERVICE_ACCESS_FILE: "${CONTROLLER_SERVICE_ACCESS_FILE:-}"
+    volumes:
+      - controller-data:/app/data
+      - ./secrets:/run/secrets:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  controller-data:
+
